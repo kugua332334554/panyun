@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanYun时代 - 上传文件</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@1.0.2/dist/css/mdui.min.css">
+    <style>
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #3f51b5;
+            background-color: #f5f5f5;
+        }
+        .result-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3f51b5;
+        }
+    </style>
+</head>
+<body class="mdui-theme-primary-indigo mdui-theme-accent-pink">
+    <!-- 导航栏 -->
+    <div class="mdui-appbar mdui-appbar-fixed">
+        <div class="mdui-toolbar mdui-color-theme">
+            <a href="javascript:;" class="mdui-btn mdui-btn-icon">
+                <i class="mdui-icon material-icons">cloud_upload</i>
+            </a>
+            <a href="/" class="mdui-typo-headline">文件上传</a>
+            <div class="mdui-toolbar-spacer"></div>
+            <a href="/" class="mdui-btn mdui-btn-ripple">首页</a>
+            <a href="/api.html" class="mdui-btn mdui-btn-ripple">API文档</a>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="mdui-container" style="padding-top: 100px; max-width: 800px;">
+        <div class="mdui-typo-display-1 mdui-text-center mdui-m-b-4">上传文件</div>
+        <div class="mdui-typo-subheading mdui-text-center mdui-m-b-6">
+            上传任意文件，获取加密的下载链接
+        </div>
+
+        <!-- 上传区 -->
+        <div id="uploadArea" class="upload-area mdui-m-b-4">
+            <i class="mdui-icon material-icons mdui-typo-display-4 mdui-text-color-grey-400">cloud_upload</i>
+            <div class="mdui-typo-headline mdui-m-t-2">点击或拖拽文件到此处</div>
+            <div class="mdui-typo-subheading mdui-m-t-1">支持任意类型的文件，最大20MB</div>
+            <input type="file" id="fileInput" style="display: none;" />
+        </div>
+
+        <!-- 进度条 -->
+        <div id="progressContainer" class="mdui-m-b-4" style="display: none;">
+            <div class="mdui-text-center mdui-m-b-2" id="statusText">准备上传...</div>
+            <div class="mdui-progress">
+                <div class="mdui-progress-determinate" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- 结果区域 -->
+        <div id="resultBox" class="result-box">
+            <div class="mdui-typo-title mdui-m-b-2">上传成功！</div>
+            <div class="mdui-typo mdui-m-b-3">您的文件已上传成功，可以使用以下链接下载：</div>
+            
+            <div class="mdui-textfield mdui-m-b-3">
+                <label class="mdui-textfield-label">下载链接</label>
+                <input class="mdui-textfield-input" type="text" id="downloadLink" readonly />
+            </div>
+            
+            
+            <button class="mdui-btn mdui-btn-raised mdui-color-theme mdui-ripple" onclick="copyLink()">
+                <i class="mdui-icon material-icons">content_copy</i> 复制链接
+            </button>
+            <a href="/" class="mdui-btn mdui-btn-outlined mdui-m-l-2">
+                <i class="mdui-icon material-icons">home</i> 返回首页
+            </a>
+        </div>
+    </div>
+
+    <!-- MDUI JS -->
+    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.2/dist/js/mdui.min.js"></script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const resultBox = document.getElementById('resultBox');
+        const downloadLink = document.getElementById('downloadLink');
+        const apiResponse = document.getElementById('apiResponse');
+
+        // 点击上传
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // 拖拽上传
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('dragover');
+            }, false);
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                handleFile(files[0]);
+            }
+        });
+
+        // 文件选择
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        async function handleFile(file) {
+            if (file.size > 20 * 1024 * 1024) {
+                mdui.snackbar({ message: '文件大小不能超过20MB', position: 'top' });
+                return;
+            }
+
+            // 显示进度条
+            progressContainer.style.display = 'block';
+            statusText.textContent = '正在上传...';
+            progressBar.style.width = '0%';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`上传失败: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // 更新进度
+                progressBar.style.width = '100%';
+                statusText.textContent = '上传完成！';
+                
+                // 显示结果
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    resultBox.style.display = 'block';
+                    
+                    // 完整的下载链接
+                    const fullLink = `${window.location.origin}/d/${result.download_id}`;
+                    downloadLink.value = fullLink;
+                    
+                    // 显示API响应
+                    apiResponse.value = JSON.stringify(result, null, 2);
+                    
+                    // 自动滚动到结果
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+
+            } catch (error) {
+                statusText.textContent = '上传失败';
+                mdui.snackbar({ message: error.message, position: 'top' });
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        function copyLink() {
+            const link = downloadLink.value;
+            navigator.clipboard.writeText(link).then(() => {
+                mdui.snackbar({ message: '链接已复制到剪贴板', position: 'top' });
+            });
+        }
+    </script>
+</body>
+</html>

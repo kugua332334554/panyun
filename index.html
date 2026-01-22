@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="mdui-theme-auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanYun时代 - 简洁高效的云端方案</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/mdui@2/mdui.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <script src="https://unpkg.com/mdui@2/mdui.global.js"></script>
+
+    <style>
+        :root {
+            --footer-bg: #121212;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('/xia_hy456_girlfriend.webp') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10%;
+            gap: 40px;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            animation: slideIn 1s ease-out;
+        }
+
+        .floating-img {
+            max-width: 450px;
+            width: 100%;
+            height: auto;
+        }
+
+        footer {
+            background-color: var(--footer-bg);
+            padding: 30px 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        @media (max-width: 900px) {
+            .main-wrapper {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                padding-top: 50px;
+                padding-bottom: 50px;
+            }
+            .image-container { justify-content: center; }
+            .hero-title { font-size: 2.5rem; }
+            footer { flex-direction: column; gap: 20px; }
+            .footer-links { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-wrapper">
+        <div class="hero-content">
+            <div class="hero-title">PanYun时代</div>
+            <div class="hero-subtitle">下一代极速、智能的云端存储体验。</div>
+            
+            <div style="display: flex; gap: 16px;">
+                <mdui-button variant="filled" href="/upload" icon="upload">立即上传</mdui-button>
+                <mdui-button variant="outlined" href="/api" icon="api" style="--mdui-color-primary: #fff; --mdui-color-outline: #fff;">
+                    API 文档
+                </mdui-button>
+            </div>
+        </div>
+
+        <div class="image-container">
+            <img src="/xingye.png" alt="Feature Image" class="floating-img">
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-logo">
+            <mdui-icon name="cloud_queue"></mdui-icon>
+            PanYun
+        </div>
+        <div class="footer-links">
+            <a href="/upload">上传文件</a>
+            <a href="/api">开发者</a>
+        </div>
+    </footer>
+
+</body>
+</html>

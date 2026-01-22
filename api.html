@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PanYun开发者 - API文档</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@1.0.2/dist/css/mdui.min.css">
+    <style>
+        body { background-color: #f5f5f5; }
+        pre {
+            background-color: #263238 !important;
+            color: #eceff1;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        code { font-family: 'Roboto Mono', 'Consolas', monospace; }
+        .method-badge {
+            font-weight: bold;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin-right: 8px;
+        }
+        .anchor-offset {
+            padding-top: 80px;
+            margin-top: -80px;
+        }
+        .section-card { margin-bottom: 32px; border-radius: 12px; }
+    </style>
+</head>
+
+<body class="mdui-appbar-with-toolbar mdui-theme-primary-indigo mdui-theme-accent-pink mdui-drawer-body-left">
+
+    <header class="mdui-appbar mdui-appbar-fixed">
+        <div class="mdui-toolbar mdui-color-theme">
+            <span class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-drawer="{target: '#main-drawer', swipe: true}">
+                <i class="mdui-icon material-icons">menu</i>
+            </span>
+            <a href="/" class="mdui-typo-headline">PanYun开发者 - API文档</a>
+            <div class="mdui-toolbar-spacer"></div>
+            <a href="/upload.html" class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white" mdui-tooltip="{content: '去上传'}">
+                <i class="mdui-icon material-icons">cloud_upload</i>
+            </a>
+        </div>
+    </header>
+
+    <div class="mdui-drawer" id="main-drawer">
+        <div class="mdui-list" mdui-collapse="{accordion: true}">
+            
+            <div class="mdui-subheader">PanYun API</div>
+            
+            
+            <a href="#api-upload" class="mdui-list-item mdui-ripple">
+                <i class="mdui-list-item-icon mdui-icon material-icons">backup</i>
+                <div class="mdui-list-item-content">上传文件</div>
+            </a>
+
+            <a href="#api-download" class="mdui-list-item mdui-ripple">
+                <i class="mdui-list-item-icon mdui-icon material-icons">file_download</i>
+                <div class="mdui-list-item-content">获取文件</div>
+            </a>
+
+            <a href="#error-codes" class="mdui-list-item mdui-ripple">
+                <i class="mdui-list-item-icon mdui-icon material-icons">error_outline</i>
+                <div class="mdui-list-item-content">错误码</div>
+            </a>
+        </div>
+    </div>
+
+    <main class="mdui-container mdui-p-t-4 mdui-p-b-5" style="max-width: 900px;">
+    
+
+        <div id="api-upload" class="anchor-offset">
+            <div class="mdui-card section-card mdui-shadow-4">
+                <div class="mdui-card-header">
+                    <div class="mdui-chip mdui-color-green mdui-text-color-white method-badge">POST</div>
+                    <span class="mdui-typo-headline">/api/upload</span>
+                </div>
+                <div class="mdui-card-content">
+                    <p class="mdui-text-color-black-secondary">上传文件并获取唯一加密的 <code>download_id</code>。</p>
+                    
+                    <div class="mdui-table-fluid mdui-m-y-2">
+                        <table class="mdui-table">
+                            <thead>
+                                <tr><th>参数</th><th>位置</th><th>类型</th><th>必须</th><th>说明</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>file</td><td>FormData</td><td>File</td><td>是</td><td>二进制文件流 (Max 20MB)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="mdui-m-t-2"><strong>请求示例：</strong></p>
+                    <pre><code>curl -X POST "https://panyun.pages.dev/api/upload" \
+  -F "file=@photo.jpg"</code></pre>
+
+                    <p class="mdui-m-t-2"><strong>响应示例：</strong></p>
+                    <pre><code>{
+  "success": true,
+  "download_id": "dl_x789",
+  "download_url": "https://panyun.pages.dev/d/dl_x789"
+}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div id="api-download" class="anchor-offset">
+            <div class="mdui-card section-card mdui-shadow-4">
+                <div class="mdui-card-header">
+                    <div class="mdui-chip mdui-color-blue mdui-text-color-white method-badge">GET</div>
+                    <span class="mdui-typo-headline">/d/{download_id}</span>
+                </div>
+                <div class="mdui-card-content">
+                    <p class="mdui-text-color-black-secondary">根据下载 ID 重定向至 CDN 或直接输出流。</p>
+                    
+                    <div class="mdui-table-fluid mdui-m-y-2">
+                        <table class="mdui-table">
+                            <thead>
+                                <tr><th>参数</th><th>位置</th><th>类型</th><th>说明</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>download_id</td><td>Path</td><td>String</td><td>格式如 <code>dl_abc123</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="mdui-m-t-2"><strong>响应头参考：</strong></p>
+                    <pre><code>HTTP/1.1 200 OK
+Content-Disposition: attachment; filename="file.zip"
+Content-Type: application/octet-stream</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div id="error-codes" class="anchor-offset">
+            <div class="mdui-card section-card mdui-shadow-2">
+                <div class="mdui-card-primary">
+                    <div class="mdui-card-primary-title">错误码参考</div>
+                </div>
+                <div class="mdui-table-fluid">
+                    <table class="mdui-table mdui-table-hoverable">
+                        <thead>
+                            <tr><th>状态码</th><th>错误短语</th><th>详细描述</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>413</code></td><td class="mdui-text-color-red">File too large</td><td>文件太大了</td></tr>
+                            <tr><td><code>404</code></td><td>Not Found</td><td>文件不存在</td></tr>
+                            <tr><td><code>502</code></td><td class="mdui-text-color-orange">API Error</td><td>上游服务连接超时</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mdui-color-grey-200 mdui-p-y-4">
+        <div class="mdui-container mdui-text-center">
+            <div class="mdui-typo-caption-opacity">
+                &copy; 2026 PanYun Cloud
+            </div>
+        </div>
+    </footer>
+
+    <button class="mdui-fab mdui-fab-fixed mdui-fab-mini mdui-color-theme-accent mdui-ripple" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <i class="mdui-icon material-icons">arrow_upward</i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.2/dist/js/mdui.min.js"></script>
+</body>
+</html>

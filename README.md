@@ -6,9 +6,17 @@
 https://panyun.pages.dev
 
 # 上传文件
+
 # 添加以下变量    
+
 BOT_TOKEN:tgbottoken
+
 CHANNEL_ID:频道id
+
+
 ENCRYPTION_KEY:32位随机id
+
 # 再次上传文件
+
 # 访问网站
+
